@@ -12,11 +12,16 @@ public class Motor2D : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        PlayerController.Instance.Set2DMotor(this);
     }
 
-    void Update()
+    public void GetInputs(float Horizontal)
     {
-        forwardInput = Input.GetAxis("Horizontal");
+        forwardInput = Horizontal;
+    }
+
+    public void Tick(float delta)
+    {
         Move();
     }
 
