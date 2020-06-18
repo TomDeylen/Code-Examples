@@ -26,6 +26,10 @@ public class ShipMove : MonoBehaviour, iDamage
     SpriteRenderer shipImage;
     Rigidbody2D rb;
 
+    MovePoints[] autoPoints;
+    int autoPointIndex = 0;
+    bool auto;
+
     void Start()
     {
         hitbox = GetComponent<Collider2D>();
@@ -51,7 +55,8 @@ public class ShipMove : MonoBehaviour, iDamage
                 }
                 else
                 {
-                    hitbox.enabled = true;
+                    if(auto == false)
+                        hitbox.enabled = true;
                     Color col = Color.white;
                     col.a = 1;
                     shipImage.color = col;
@@ -59,7 +64,7 @@ public class ShipMove : MonoBehaviour, iDamage
             }
         }
 
-        if (dead == false)
+        if (dead == false && auto == false)
         {
             float up = Input.GetAxis("Vertical");
             float side = Input.GetAxis("Horizontal");
@@ -69,6 +74,10 @@ public class ShipMove : MonoBehaviour, iDamage
                 Fire();
             }
 
+        }
+        else if(auto == true)
+        {
+            AutoMove();
         }
 
     }
@@ -83,6 +92,31 @@ public class ShipMove : MonoBehaviour, iDamage
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Damage(-1);
+    }
+
+    void AutoMove()
+    {
+        transform.position = Vector3.Lerp(transform.position, autoPoints[autoPointIndex].point.position,
+                                           autoPoints[autoPointIndex].speed * Time.deltaTime * Time.deltaTime);
+
+        float distance = Vector3.Distance(autoPoints[autoPointIndex].point.position,transform.position);
+        if (distance < 0.2f)
+        {
+            autoPointIndex++;
+            if(autoPointIndex >= autoPoints.Length)
+            {
+                autoPointIndex = autoPoints.Length - 1;
+            }
+        }
+
+    }
+
+    public void ActivateAutoMove(MovePoints[] movePoints)
+    {
+        autoPoints = movePoints;
+        autoPointIndex = 0;
+        auto = true;
+        hitbox.enabled = false;
     }
 
     void Fire()
